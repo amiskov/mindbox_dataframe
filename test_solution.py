@@ -1,9 +1,8 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta, datetime
-from gen import rand_timestamps
 from solution import add_session_id
-from random import randint, shuffle, randrange
+from random import randint, shuffle
 from typing import Optional
 
 
@@ -84,8 +83,10 @@ def test_data():
     assert df.iloc[9]['session_id'] == -1 and df.iloc[9]['customer_id'] == 1
 
 
-def test_large_dataset():
-    df_size = 10 ** 8
+def test_large_dataset(request):
+    df_size = 10 ** 6
+    if request.config.option.df_size:
+        df_size = int(request.config.option.df_size)
     start = datetime(year=2022, month=11, day=15, hour=12, minute=00)
     end = start + timedelta(minutes=10)
     s = int(start.timestamp())
@@ -102,7 +103,6 @@ def test_large_dataset():
     # Add `session_id` column
     df.sort_values(by='timestamp', na_position='last', inplace=True)
     add_session_id(df)
-    print(df)
 
     delta = datetime.now() - test_started
     print('finished in ', delta.seconds)
